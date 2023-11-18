@@ -8,6 +8,11 @@ tasks_list = [
     {"id": 1, "title": "Second task", "description": "complete and submit 5333 inclass lab 2 on canvas "}
 ]
 
+
+@app.route("/")
+def hello():
+   return "Hello world!!!"
+
 # get tasks
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
