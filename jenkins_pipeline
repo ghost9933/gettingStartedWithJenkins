@@ -1,52 +1,53 @@
 pipeline {
-   agent any
+    agent any
+   
+    environment {
+        DOCKER_HUB_REPO = "nxm2555/flask-hello-world"
+        CONTAINER_NAME = "flask-hello-world"
+     //   GCP_CREDENTIALS = credentials('3389edce-f1dc-4fef-b041-b24bcfeb4d2e')
+        GCS_BUCKET = 'inclasslab3'
+        GCS_FOLDER = "repo-backup-${env.BUILD_ID}"
   
-   environment {
-       DOCKER_HUB_REPO = "nxm2555/flask-hello-world"
-       CONTAINER_NAME = "flask-hello-world"
-    //   GCP_CREDENTIALS = credentials('3389edce-f1dc-4fef-b041-b24bcfeb4d2e')
-       GCS_BUCKET = 'inclasslab3'
-       GCS_FOLDER = "repo-backup-${env.BUILD_ID}"
+    }
+   
+    stages {
+        stage('Checkout') {
+            steps {
  
-   }
-  
-   stages {
-       stage('Checkout') {
-           steps {
-
-               checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: '553672ba-e4c3-454b-8d67-487b6b25e575',url: 'https://github.com/ghost9933/lab3.git']]])
-                sh "ls -lat"
-
-           }
-       }
-       stage('install dependecies') {
-           steps {
-               echo 'installing'
-               sh 'pip3 install --no-cache-dir -r requirements.txt'
-           }
-       }
-       stage('Test') {
-           steps {
-               echo 'Testing..'
-               sh 'python3 -m pytest test.py'
-           }
-       }
-       stage('Copy to GCS') {
-          
-          steps{
-              echo 'coping to gcs....'
-            //   script {
-            //       googleStorageBuildLogUpload bucket: 'gs://inclasslab3', credentialsId: '3389edce-f1dc-4fef-b041-b24bcfeb4d2e', logName: 'build-log.txt'
-            //   }
-            step([$class: 'ClassicUploadStep', credentialsId: '3389edce-f1dc-4fef-b041-b24bcfeb4d2e',  bucket: "gs://inclasslab3",pattern: '*'])
-          }
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: '553672ba-e4c3-454b-8d67-487b6b25e575',url: 'https://github.com/ghost9933/lab3.git']]])
+                 sh "ls -lat"
+ 
+            }
         }
-       stage('Deploy') {
-           steps {
-               echo 'Deploying....'
-               
-               sh 'python3 todo.py'
+        stage('install dependecies') {
+            steps {
+                echo 'installing'
+                sh 'pip3 install --no-cache-dir -r requirements.txt'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing..'
+                sh 'python3 -m pytest test.py'
+            }
+        }
+        stage('Copy to GCS') {
+           
+           steps{
+               echo 'coping to gcs....'
+             //   script {
+             //       googleStorageBuildLogUpload bucket: 'gs://inclasslab3', credentialsId: '3389edce-f1dc-4fef-b041-b24bcfeb4d2e', logName: 'build-log.txt'
+             //   }
+             step([$class: 'ClassicUploadStep', credentialsId: '3389edce-f1dc-4fef-b041-b24bcfeb4d2e',  bucket: "gs://inclasslab3",pattern: '*'])
            }
-       }
-   }
-}
+         }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+             
+                sh "python3 -m flask run &"
+            }
+        }
+    }
+ }
+ 
