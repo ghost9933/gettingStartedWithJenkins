@@ -1,4 +1,5 @@
-# lab3
+# Getting started with Jenkins
 
-testing jenkins 2
-check if gcs bucket has storage created 
+Deploying a simple flask CRUD API to GCp using Jenkins
+Testing the deployed API via Jenkins
+Archiving files in the GCS bucket has storage created 
